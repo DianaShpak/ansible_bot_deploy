@@ -1,0 +1,86 @@
+---
+  - include: dependencies.yml
+
+  - name: Print mosh version
+    debug:
+      msg:
+        - 'Ansible Version: {{ ansible_play_hosts }}'
+
+  - name: Set dynamic variable for node_ip
+    set_fact:
+      node_ip: "{{ hostvars[inventory_hostname][ipv4]   | default(ansible_default_ipv4.address) }}"
+    tags:
+      - consul
+      - consul-container
+      - consul-master
+      - container
+
+  - name: Create consul data dir
+    file:
+      path: /home/docker/consul/{{ item }}
+      state: directory
+      recurse: yes
+      owner: 100
+      group: 1000
+      mode: 0755
+    with_items:
+      - data
+      - config
+    tags:
+      - consul
+
+  - debug: var=ansible_play_hosts
+    tags:
+      - consul
+
+  - name: Add consul config
+    template:
+      src: "consul.json.j2"
+      dest: "/home/docker/consul/config/consul.json"
+      owner: 100
+      group: 1000
+      mode: 0644
+    notify:
+      - consul reload
+    tags:
+      - consul
+#
+  - name: Start consul
+    docker_container:
+      name: consul
+      image: consul:1.8.5
+      volumes:
+        - /etc/localtime:/etc/localtime:ro
+        - /home/docker/consul/data:/consul/data
+        - /home/docker/consul/config:/consul/config
+      hostname: "{{ ansible_hostname }}"
+      env:
+        SERVICE_8300_IGNORE: "true"
+        SERVICE_8301_IGNORE: "true"
+        SERVICE_8302_IGNORE: "true"
+        SERVICE_8400_IGNORE: "true"
+        SERVICE_8500_IGNORE: "true"
+        SERVICE_8600_IGNORE: "true"
+      command: agent -config-dir /consul/config
+      state: started
+      restart_policy: always
+      ports:
+        - 8300:8300
+        - 8300:8300/udp
+        - 8301:8301
+        - 8301:8301/udp
+        - 8302:8302
+        - 8302:8302/udp
+        - 8400:8400
+        - 8500:8500
+        - 8600:8600
+        - 8600:8600/udp
+      log_driver: json-file
+      log_options:
+        max-size: "1m"
+        max-file: "1"
+    tags:
+      - consul
+      -
+  - name: Fire handlers
+    meta: flush_handlers

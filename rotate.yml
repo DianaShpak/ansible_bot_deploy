@@ -1,0 +1,11 @@
+---
+- hosts:
+    - hcloud
+  user: root
+#  vars_files:
+#    - "group_vars/tag_Env_{{ stage }}.yml"
+  become: true
+  become_method: sudo
+  gather_facts: true
+  roles:
+    - log_rotate

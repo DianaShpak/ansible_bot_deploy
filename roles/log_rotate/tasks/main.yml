@@ -1,0 +1,6 @@
+---
+- name: delete logs
+  shell: "ls -al"
+  register: out
+- debug:
+    var: out

@@ -1,0 +1,6 @@
+---
+  - name: Reload consul
+    command: docker exec -t consul consul reload
+    listen: "consul reload"
+    tags:
+      - skip_ansible_lint

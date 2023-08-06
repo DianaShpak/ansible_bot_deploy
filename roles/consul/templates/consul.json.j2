@@ -1,0 +1,27 @@
+{
+  "datacenter": "diana",
+  "data_dir": "/opt/consul",
+  "log_level": "INFO",
+  "node_name": "{{ ansible_hostname }}",
+  "server": true,
+  "client_addr": "0.0.0.0",
+  "advertise_addr": "{{ node_ip }}",
+
+{% if ansible_play_hosts | count <= 1 %}
+  "bootstrap": true,
+{% else %}
+  "bootstrap_expect": 2,
+
+
+  "retry_join":  [ 
+    {%- for host in ansible_play_hosts -%}
+    "{{  hostvars[host]['ipv4']}}"{%- if not loop.last -%}, {%- endif -%}
+    {%- endfor -%} 
+    ],
+
+{% endif %}
+  "ui": true,
+  "telemetry": {
+     "statsite_address": "0.0.0.0:2180"
+  }
+}

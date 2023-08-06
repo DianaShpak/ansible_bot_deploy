@@ -1,0 +1,6 @@
+---
+  - name: install python-consul with pip
+    pip:
+      name: python-consul
+    tags:
+      - consul
