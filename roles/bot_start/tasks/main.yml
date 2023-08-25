@@ -1,0 +1,26 @@
+---
+- name: Print mosh version
+  debug:
+    msg:
+      - 'Ansible Version: {{ ansible_play_hosts }}'
+
+- name: Start bot container
+  docker_container:
+    name: "gatling-bot{{ emul_prefix | default('') }}"
+    image: "aurora0/bot:latest"
+    env:
+      GrafanaPostfix: "gatling"
+      propertiesFile: "diplom"
+      scenario: "http1"
+      usersPerContainer: "3"
+      consul: "172.17.0.1"
+    volumes:
+    #      - /tmp/gatling/gatling.conf:/opt/gatling/conf/gatling.conf
+    #      - /var/log/gatling:/opt/gatling/results
+    state: started
+    pull: true
+    command: mvn -X gatling:test -Dgatling.simulationClass=simulation.BasicSimulation -Dgatling.conf.file=gatling-configs/gatling.conf
+    log_driver: json-file
+    log_options:
+      max-size: "500m"
+      max-file: "1"
