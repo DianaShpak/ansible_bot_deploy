@@ -11,8 +11,10 @@
     env:
       GrafanaPostfix: "gatling"
       propertiesFile: "diplom"
-      scenario: "http1"
-      usersPerContainer: "3"
+      scenario: "http2"
+      during: "300"
+      usersPerContainer: "150"
+      app: "{{hostvars['app-server-0'].ansible_host}}:8000"
       consul: "172.17.0.1"
     volumes:
     #      - /tmp/gatling/gatling.conf:/opt/gatling/conf/gatling.conf

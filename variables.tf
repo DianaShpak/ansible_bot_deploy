@@ -11,7 +11,7 @@ variable "http_port" {
 }
 
 variable "instances" {
-  default = "2"
+  default = "6"
 }
 
 variable "server_type" {
